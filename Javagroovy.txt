@@ -1,0 +1,56 @@
+pipeline 
+{
+agent any
+    stages{
+stage('Git-Checkout'){
+   steps{
+ echo "Checkout from GitHub!!";
+ git 'https://github.com/bipeensinha/Pipeline_scripts.git'
+ }
+}
+stage('Build'){
+   steps{
+ echo "Building the Project";
+ bat 'javac HclBuildProj.java'
+ bat  'java HclBuildProj'
+ }
+}
+stage('Unit-Test'){
+   steps{
+ echo "Running the Junit Test!!";
+ bat 'javac HclUATProj.java '
+ bat  'java HclUATProj'
+ }
+}
+stage('Quality-Gate '){
+   steps{
+ echo "QA Verification Going on";
+bat 'javac HclDeployProj.java'
+ bat  'java HclDeployProj'
+ }
+}
+stage('Deploy'){
+   steps{
+ echo "Deploing on Stage Env ";
+ bat 'javac HclMonitor.java'
+ bat  'java HclMonitor'
+ }
+}
+}
+
+post {
+always {
+echo 'this will always run'
+}
+
+success  {
+echo 'this will  run only if sucessful'
+}
+failure  {
+echo 'this will  run only if failed'
+}
+unstable  {
+echo 'this will  run only if unstable'
+}
+}
+}
