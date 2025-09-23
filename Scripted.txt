@@ -1,0 +1,27 @@
+node {
+    stage('Checkout') {
+        echo "Pulling code from GitHub..."
+        git branch: 'main', url: 'https://github.com/bipeenapp/vodapp.git'
+    }
+
+    stage('Compile') {
+        echo "Compiling VodaApp.java and VodaMonitor.java..."
+        bat 'javac VodaApp.java VodaMonitor.java'
+    }
+
+    stage('Test') {
+        echo "Compiling and running VodaTest.java..."
+        bat 'javac VodaTest.java'
+        bat 'java VodaTest'
+    }
+
+    stage('Deploy') {
+        echo "Executing deployment script..."
+        bat 'vodadeploy.bat'
+    }
+
+    stage('Monitor') {
+        echo "Running VodaMonitor.java..."
+        bat 'java VodaMonitor'
+    }
+}
