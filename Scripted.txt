@@ -6,7 +6,9 @@ node {
 
     stage('Compile') {
         echo "Compiling VodaApp.java and VodaMonitor.java..."
-        bat 'javac VodaApp.java VodaMonitor.java'
+        bat 'javac VodaApp.java'
+        bat  'javac VodaMonitor.java'
+        bat 'jar cvf vodapp.jar *.class'
     }
 
     stage('Test') {
@@ -25,3 +27,4 @@ node {
         bat 'java VodaMonitor'
     }
 }
+
