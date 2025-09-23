@@ -1,0 +1,70 @@
+pipeline {
+    agent any
+
+    triggers {
+        pollSCM('H/5 * * * *')   // Polls GitHub every 5 minutes
+    }
+
+    stages {
+        stage('Git Checkout') {
+            steps {
+                echo "Checking out from GitHub..."
+                git 'https://github.com/bipeensinha/Pipeline_scripts.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo "Building the Project..."
+                bat 'javac HclBuildProj.java'
+                bat 'java HclBuildProj'
+            }
+        }
+
+        stage('Unit Test') {
+            steps {
+                echo "Running Unit Tests..."
+                bat 'javac HclUATProj.java'
+                bat 'java HclUATProj'
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                echo "Performing QA Verification..."
+                bat 'javac HclDeployProj.java'
+                bat 'java HclDeployProj'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo "Deploying on Stage Environment..."
+                bat 'javac HclMonitor.java'
+                bat 'java HclMonitor'
+            }
+        }
+
+        stage('Archive Artifacts') {
+            steps {
+                echo "Archiving build outputs..."
+                archiveArtifacts artifacts: '**/*.class, **/*.log', fingerprint: true
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'This will always run (cleanup, notifications, etc.)'
+        }
+        success {
+            echo 'This will run only if the pipeline is successful ✅'
+        }
+        failure {
+            echo 'This will run only if the pipeline fails ❌'
+        }
+        unstable {
+            echo 'This will run only if the pipeline is unstable ⚠️'
+        }
+    }
+}
