@@ -1,0 +1,58 @@
+pipeline {
+    agent any
+
+    environment {
+        RESOURCE_GROUP = "AZ-400"
+        VM_NAME = "myVM"
+        IMAGE = "Win2016Datacenter"
+        ADMIN_USERNAME = "Demouser"
+        ADMIN_PASSWORD = "Demouser@123"
+        LOCATION = "eastus"
+    }
+
+    stages {
+        stage('Login to Azure') {
+            steps {
+                azureCLI(
+                    principalCredentialId: 'c12c1bc8-fef0-4687-81fb-64bd14904c66',
+                    commands: [
+                        [script: 'echo Logged in to Azure successfully'],
+                        [script: 'az account show']
+                    ]
+                )
+            }
+        }
+
+        stage('Create VM') {
+            steps {
+                azureCLI(
+                    principalCredentialId: 'c12c1bc8-fef0-4687-81fb-64bd14904c66',
+                    commands: [
+                        [script: "echo Creating VM..."],
+                        [script: "az vm create --resource-group ${RESOURCE_GROUP} --name ${VM_NAME} --image ${IMAGE} --admin-username ${ADMIN_USERNAME} --admin-password ${ADMIN_PASSWORD} --location ${LOCATION}"]
+                    ]
+                )
+            }
+        }
+
+        stage('Show VM Info') {
+            steps {
+                azureCLI(
+                    principalCredentialId: 'c12c1bc8-fef0-4687-81fb-64bd14904c66',
+                    commands: [
+                        [script: "az vm show --resource-group ${RESOURCE_GROUP} --name ${VM_NAME} -d -o table"]
+                    ]
+                )
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Azure VM created successfully!'
+        }
+        failure {
+            echo 'Failed to create Azure VM. Check logs.'
+        }
+    }
+}
