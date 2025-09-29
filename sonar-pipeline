@@ -1,0 +1,29 @@
+pipeline {
+  agent any
+
+  stages {
+    stage('Checkout') {
+      steps {
+        git branch: 'main', url: 'https://github.com/bipeensinha/webapp.git'
+      }
+    }
+    stage('Build') {
+      steps {
+        bat 'mvn -B -DskipTests clean package'
+      }
+    }
+    stage('SonarQube analysis') {
+      steps {
+        withSonarQubeEnv('Sonar-server') {  // Must match the name in Jenkins SonarQube config
+          bat """
+            mvn sonar:sonar ^
+              -Dsonar.projectKey=sonar-demo ^
+              -Dsonar.projectName="Sonar Demo" ^
+              -Dsonar.host.url=%SONAR_HOST_URL% ^
+              -Dsonar.login=%SONAR_AUTH_TOKEN%
+          """
+        }
+      }
+    }
+  }
+}
